@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class SmallText extends StatelessWidget {
   Color? color;
@@ -15,13 +15,14 @@ class SmallText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      maxLines: 1,
+      //maxLines: 1,
       style: TextStyle(
         fontFamily: 'DoHyeon',
         color: color,
         fontSize: size,
         height: height,
         fontWeight: FontWeight.w400,
+
       ),
 
     );
