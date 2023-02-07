@@ -18,6 +18,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
   Widget build(BuildContext context) {
     print("current height is"+MediaQuery.of(context).size.height.toString());
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       body: Column(
         children: [
           Container(

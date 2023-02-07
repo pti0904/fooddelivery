@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery/controllers/popular_product_controller.dart';
 import 'package:fooddelivery/utils/colors.dart';
 import 'package:fooddelivery/utils/dimensions.dart';
 import 'package:fooddelivery/widgets/app_column.dart';
@@ -6,6 +7,7 @@ import 'package:fooddelivery/widgets/big_text.dart';
 import 'package:fooddelivery/widgets/icon_and_text_widget.dart';
 import 'package:fooddelivery/widgets/small_text.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:get/get.dart';
 
 class FoodPageBody extends StatefulWidget {
   const FoodPageBody({Key? key}) : super(key: key);
@@ -43,25 +45,39 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     return Column(
       children: [
         //사이즈들이 하드코드 돼있어서//slider section
-        Container(
-          height: Dimensions.pageView,
-          child: PageView.builder(
-            controller: pageController,
-            itemCount: 5,
-            itemBuilder: (context, position) {
-              return _buildPageItem(position);
-            },
-          ),
-        ),
+        GetBuilder<PopularProductController>(builder:(popularProducts){
+          return Container(
+            height: Dimensions.pageView,
+            child: PageView.builder(
+              controller: pageController,
+              itemCount: popularProducts.popularProductList.isEmpty?1:popularProducts.popularProductList.length, //이거 안해주면 에러남 0일때 에러남 1로 해줘야함
+              itemBuilder: (context, position) {
+                return _buildPageItem(position);
+              },
+            ),
+          );
+          /*return Container(
+            height: Dimensions.pageView,
+            child: PageView.builder(
+              controller: pageController,
+              itemCount: 5,
+              itemBuilder: (context, position) {
+                return _buildPageItem(position);
+              },
+            ), 원래 이거였는데 getbuilder 이용하기 위해 바꿈
+          );*/
+        }),
         //dots
-        new DotsIndicator(
-          dotsCount: 5,
-          position: _currPageValue,
-          decorator: DotsDecorator(
-            color: Colors.black87, // Inactive color
-            activeColor: AppColors.mainColor,
-          ),
-        ),
+        GetBuilder<PopularProductController>(builder: (popularProducts){
+          return DotsIndicator(
+            dotsCount: popularProducts.popularProductList.length,
+            position: _currPageValue,
+            decorator: DotsDecorator(
+              color: Colors.black87, // Inactive color
+              activeColor: AppColors.mainColor,
+            ),
+          );
+        }),
         SizedBox(
           height: Dimensions.height30,
         ),
