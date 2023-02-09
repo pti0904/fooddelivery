@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fooddelivery/controllers/popular_product_controller.dart';
+import 'package:fooddelivery/controllers/recommended_product_controller.dart';
+import 'package:fooddelivery/models/products_model.dart';
+import 'package:fooddelivery/routes/route_help.dart';
+import 'package:fooddelivery/utils/app_constants.dart';
 import 'package:fooddelivery/utils/colors.dart';
 import 'package:fooddelivery/utils/dimensions.dart';
 import 'package:fooddelivery/widgets/app_column.dart';
@@ -8,6 +12,8 @@ import 'package:fooddelivery/widgets/icon_and_text_widget.dart';
 import 'package:fooddelivery/widgets/small_text.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:get/get.dart';
+
+import '../food/popular_food_detail.dart';
 
 class FoodPageBody extends StatefulWidget {
   const FoodPageBody({Key? key}) : super(key: key);
@@ -45,17 +51,35 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     return Column(
       children: [
         //사이즈들이 하드코드 돼있어서//slider section
-        GetBuilder<PopularProductController>(builder:(popularProducts){
-          return Container(
-            height: Dimensions.pageView,
-            child: PageView.builder(
-              controller: pageController,
-              itemCount: popularProducts.popularProductList.isEmpty?1:popularProducts.popularProductList.length, //이거 안해주면 에러남 0일때 에러남 1로 해줘야함
-              itemBuilder: (context, position) {
-                return _buildPageItem(position);
-              },
-            ),
-          );
+        GetBuilder<PopularProductController>(builder: (popularProducts) {
+          return popularProducts.isLoaded
+              ? Container(
+                  height: Dimensions.pageView,
+                  child: GestureDetector(
+                    //클릭되도록 만들기
+                    onTap: () {
+                      /*Get.to(()=>PopularFoodDetail()*/
+                      Get.toNamed(RouteHelper.getPopularFood());
+                    },
+                    child: PageView.builder(
+                      controller: pageController,
+                      itemCount: popularProducts.popularProductList.isEmpty
+                          ? 1
+                          : popularProducts.popularProductList.length,
+                      //이거 안해주면 에러남 0일때 에러남 1로 해줘야함
+                      itemBuilder: (context, position) {
+                        return _buildPageItem(position,
+                            popularProducts.popularProductList[position]);
+                      },
+                    ),
+                  ),
+                )
+              : Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.mainColor,
+                  ),
+                );
+
           /*return Container(
             height: Dimensions.pageView,
             child: PageView.builder(
@@ -68,16 +92,18 @@ class _FoodPageBodyState extends State<FoodPageBody> {
           );*/
         }),
         //dots
-        GetBuilder<PopularProductController>(builder: (popularProducts){
+        GetBuilder<PopularProductController>(builder: (popularProducts) {
           return DotsIndicator(
-            dotsCount: popularProducts.popularProductList.length,
+            dotsCount: popularProducts.popularProductList.isEmpty
+                ? 1
+                : popularProducts.popularProductList.length,
             position: _currPageValue,
             decorator: DotsDecorator(
               color: Colors.black87, // Inactive color
               activeColor: AppColors.mainColor,
             ),
           );
-        }),
+        }), //GetBuilder for dots
         SizedBox(
           height: Dimensions.height30,
         ),
@@ -86,7 +112,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                BigText(text: "Popular"),
+                BigText(text: "Recommended"),
                 SizedBox(
                   width: Dimensions.width10,
                 ),
@@ -107,97 +133,111 @@ class _FoodPageBodyState extends State<FoodPageBody> {
                 //list of food and images
               ],
             )),
-        Container(
+        GetBuilder<RecommendedProductController>(builder: (recommendedProduct) {
+          return recommendedProduct.isLoaded
+              ? ListView.builder(
+                  shrinkWrap: true,
+                  //main_food_page에서 FoodPageBody()를Expanded로 감싸줘서 에러없앰
+                  physics: NeverScrollableScrollPhysics(),
+                  //shrinkWrap: true,
+                  itemCount: recommendedProduct.recommendedProductList.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                        margin: EdgeInsets.only(
+                            left: Dimensions.width20,
+                            right: Dimensions.width20,
+                            bottom: Dimensions.height10),
+                        child: Row(
+                          children: [
+                            //image section
+                            Container(
+                                width: Dimensions.listViewImgSize,
+                                height: Dimensions.listViewImgSize,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        Dimensions.radius20),
+                                    color: Colors.white38,
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(AppConstants
+                                                .BASE_URL +
+                                            AppConstants.UPLOAD_URL +
+                                            recommendedProduct
+                                                .recommendedProductList[index]
+                                                .img!)))),
+                            Expanded(
+                              child: Container(
+                                height: Dimensions.listViewTextContSize,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topRight:
+                                          Radius.circular(Dimensions.radius20),
+                                      bottomRight:
+                                          Radius.circular(Dimensions.radius20),
+                                    ),
+                                    color: Colors.white),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: Dimensions.width10,
+                                      right: Dimensions.width10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      BigText(
+                                          text: recommendedProduct
+                                              .recommendedProductList[index]
+                                              .name!),
+                                      SizedBox(
+                                        height: Dimensions.height10,
+                                      ),
+                                      SmallText(
+                                          text: recommendedProduct
+                                              .recommendedProductList[index]
+                                              .description!),
+                                      SizedBox(
+                                        height: Dimensions.height10,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconAndTextWidget(
+                                              icon: Icons.circle_sharp,
+                                              text: "Normal",
+                                              iconColor: AppColors.iconColor1),
+                                          IconAndTextWidget(
+                                              icon: Icons.location_on,
+                                              text: "1.7km",
+                                              iconColor: AppColors.mainColor),
+                                          IconAndTextWidget(
+                                              icon: Icons.access_time_rounded,
+                                              text: "32min",
+                                              iconColor: AppColors.iconColor2)
+                                        ],
+                                      )
 
-            child: ListView.builder(
-                shrinkWrap: true,
-                //main_food_page에서 FoodPageBody()를Expanded로 감싸줘서 에러없앰
-                physics: NeverScrollableScrollPhysics(),
-                //shrinkWrap: true,
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return Container(
-                      margin: EdgeInsets.only(
-                          left: Dimensions.width20,
-                          right: Dimensions.width20,
-                          bottom: Dimensions.height10),
-                      child: Row(
-                        children: [
-                          //image section
-                          Container(
-                              width: Dimensions.listViewImgSize,
-                              height: Dimensions.listViewImgSize,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      Dimensions.radius20),
-                                  color: Colors.white38,
-                                  image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: AssetImage(
-                                          "assets/image/food1.jpg")))),
-                          Expanded(
-                            child: Container(
-                              height: Dimensions.listViewTextContSize,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topRight:
-                                        Radius.circular(Dimensions.radius20),
-                                    bottomRight:
-                                        Radius.circular(Dimensions.radius20),
+                                      //overflow.ellipsis때문에 ...으로 나옴
+                                    ],
                                   ),
-                                  color: Colors.white),
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    left: Dimensions.width10,
-                                    right: Dimensions.width10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    BigText(
-                                        text: "Nutritious fruit meal in China"),
-                                    SizedBox(
-                                      height: Dimensions.height10,
-                                    ),
-                                    SmallText(
-                                        text: "With chinese characteristics"),
-                                    SizedBox(
-                                      height: Dimensions.height10,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        IconAndTextWidget(
-                                            icon: Icons.circle_sharp,
-                                            text: "Normal",
-                                            iconColor: AppColors.iconColor1),
-                                        IconAndTextWidget(
-                                            icon: Icons.location_on,
-                                            text: "1.7km",
-                                            iconColor: AppColors.mainColor),
-                                        IconAndTextWidget(
-                                            icon: Icons.access_time_rounded,
-                                            text: "32min",
-                                            iconColor: AppColors.iconColor2)
-                                      ],
-                                    )
-
-                                    //overflow.ellipsis때문에 ...으로 나옴
-                                  ],
                                 ),
                               ),
                             ),
-                          ),
-                          //text container
-                        ],
-                      ));
-                }))
+                            //text container
+                          ],
+                        ));
+                  })
+              : Center(
+                  child: CircularProgressIndicator(
+                  color: AppColors.mainColor,
+                ));
+        }) //getbuilder for recommended product
       ],
     );
   }
 
-  Widget _buildPageItem(int index) {
+  Widget _buildPageItem(int index, ProductModel popularProduct) {
     Matrix4 matrix = new Matrix4.identity();
     if (index == _currPageValue.floor()) {
       var currScale = 1 - (_currPageValue - index) * (1 - _scaleFactor);
@@ -238,7 +278,10 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: AssetImage("assets/image/food1.jpg")),
+                  //image: AssetImage("assets/image/food1.jpg")),
+                  image: NetworkImage(AppConstants.BASE_URL +
+                      AppConstants.UPLOAD_URL +
+                      popularProduct.img!)),
             ),
           ),
           Align(
@@ -264,7 +307,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
               child: Container(
                   padding: EdgeInsets.only(
                       top: Dimensions.height15, left: 15, right: 10),
-                  child: AppColumn(text: "Chinese Side")),
+                  child: AppColumn(text: popularProduct.name!)),
             ),
           ),
         ],

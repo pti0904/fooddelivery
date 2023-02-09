@@ -33,7 +33,7 @@ class _MainFoodPageState extends State<MainFoodPage> {
                 children: [
                   Column(
                     children: [
-                      BigText(text: "한국", color: AppColors.mainColor, size: 30,),
+                      BigText(text: "서울", color: AppColors.mainColor, size: 30,),
                       Row(
                         children: [
                           SmallText(text: "연남동", color: Colors.black54),

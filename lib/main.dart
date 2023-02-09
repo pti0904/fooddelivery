@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fooddelivery/controllers/recommended_product_controller.dart';
 import 'package:fooddelivery/pages//home/main_food_page.dart';
 import 'package:fooddelivery/pages/food/popular_food_detail.dart';
 import 'package:fooddelivery/pages/food/recommended_food_detail.dart';
 import 'package:fooddelivery/pages/home/food_page_body.dart';
+import 'package:fooddelivery/routes/route_help.dart';
 import 'package:get/get.dart';
 import 'package:fooddelivery/helper/dependencies.dart' as dep;
 
@@ -29,6 +31,7 @@ class MyApp extends StatelessWidget {
 
   Widget build(BuildContext context) {
     Get.find<PopularProductController>().getPopularProductList();
+    Get.find<RecommendedProductController>().getRecommendedProductList();
 
     return GetMaterialApp(
       //바탕색깔 설정
@@ -36,18 +39,12 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
 
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
+
         primarySwatch: Colors.blue,
       ),
       home: MainFoodPage(),
+      initialRoute: RouteHelper.initial, //getPages는 GetMaterialApp에서 List<GetPage>를 받는다.
+      getPages: RouteHelper.routes,  //getPages는 GetMaterialApp에서 List<GetPage>를 받는다.
     );
   }
 }

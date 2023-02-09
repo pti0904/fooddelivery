@@ -12,6 +12,9 @@ class PopularProductController extends GetxController {
   List<dynamic> _popularProductList = []; //빈 리스트를 만들어서 여기에 데이터를 넣는다.
   List<dynamic> get popularProductList => _popularProductList;
 
+  bool _isLoaded = false;
+  bool get isLoaded => _isLoaded;
+
   Future<void> getPopularProductList() async {
     Response response =
         await popularProductRepo.getPopularProductList(); //호출 수행
@@ -20,7 +23,8 @@ class PopularProductController extends GetxController {
       print("get products");
       _popularProductList = [];
       _popularProductList.addAll(Product.fromJson(response.body).products);
-      print(_popularProductList);
+      //print(_popularProductList);
+      _isLoaded = true;
       update();
     } else {
       print(
