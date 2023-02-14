@@ -20,7 +20,7 @@ class RecommendedProductController extends GetxController {
     await recommendedProductRepo.getRecommendedProductList(); //호출 수행
     if (response.statusCode == 200) {
       //데이터를 리스트에 넣는다. 성공하면 statusCode==200
-      print("get recommended");
+      //print("get recommended");
       _recommendedProductList = [];
       _recommendedProductList.addAll(Product.fromJson(response.body).products);
       //print(_popularProductList);
