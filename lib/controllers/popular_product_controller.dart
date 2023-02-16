@@ -36,12 +36,13 @@ class PopularProductController extends GetxController {
           "get products error: ${response.statusCode} ${response.statusText}"); //실패하면 메시지를 출력한다.
     }
   }
-
+//이 밑에 것들은 all reusable하다
   void setQuantity(bool isIncrement){
     if (isIncrement) { //if true
       _quantity = checkQuantity(_quantity+1);
     } else {
       _quantity = checkQuantity(_quantity-1);
+      //print("decrement"+_quantity.toString());
     }
     update(); //화면을 갱신한다.
   } //setQuantity
@@ -78,18 +79,21 @@ class PopularProductController extends GetxController {
     //get from storage _inCartItems =3
   }
   void addItem(ProductModel product){
-    if(_quantity>0){
+    //if(_quantity>0){
       _cart.addItem(product, _quantity);
       _quantity=0; //reset quantity
       _inCartItems=_cart.getQuantity(product); //update the quantity in the cart
       _cart.items.forEach((key, value) {
         print("The id is "+value.id.toString()+" and the quantity is "+value.quantity.toString());
       });
-    }else{
-      Get.snackbar("Item count", "You should at least add 1 item in the cart !",
-        backgroundColor: AppColors.mainColor,
-        colorText: Colors.white,);
-    }
+      update();
+    /*}else{
+
+    }*/
 
   }
+  int get totalItems{
+    return _cart.totalItems;
+  }
+  //이들중에서 PopularProductController에만 직접적으로 관련된 건 하나다 PopularProductRepo 이다.
 }
